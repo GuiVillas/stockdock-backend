@@ -1,7 +1,13 @@
 node_modules/
 .env
-logs/
+
+# Logs do sistema (arquivos de log gerados pelo Winston)
 *.log
+/logs/
+
+# NÃO ignorar a pasta src/modules/logs (código fonte)
+!src/modules/logs/
+
 .DS_Store
 dist/
 coverage/
