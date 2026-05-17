@@ -76,4 +76,6 @@ async function seed() {
     }
 }
 
-seed().catch(() => process.exit(1));
+seed()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
