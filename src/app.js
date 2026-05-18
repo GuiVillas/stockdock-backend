@@ -25,6 +25,8 @@ const logRoutes    = require('./modules/logs/log.routes');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // ---------------------------------------------------
 // SEGURANÇA: Helmet define headers HTTP seguros
 // Protege contra XSS, clickjacking, sniffing, etc.
