@@ -64,6 +64,12 @@ const createUserSchema = Joi.object({
         .required()
         .label('Cargo'),
 
+    setor: Joi.string()
+        .valid('FRIOS', 'SECOS')
+        .allow(null)
+        .optional()
+        .label('Setor'),
+
 }).messages(messages);
 
 // ---------------------------------------------------
@@ -88,6 +94,12 @@ const updateUserSchema = Joi.object({
 
     ativo: Joi.boolean()
         .label('Ativo'),
+    
+    setor: Joi.string()
+        .valid('FRIOS', 'SECOS')
+        .allow(null)
+        .optional()
+        .label('Setor'),
 
 }).min(1).messages({
     ...messages,

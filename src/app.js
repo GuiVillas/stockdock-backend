@@ -22,6 +22,7 @@ const authRoutes   = require('./modules/auth/auth.routes');
 const palletRoutes = require('./modules/pallets/pallet.routes');
 const userRoutes   = require('./modules/users/user.routes');
 const logRoutes    = require('./modules/logs/log.routes');
+const lojaRoutes = require('./modules/lojas/loja.routes');
 
 const app = express();
 
@@ -128,6 +129,7 @@ app.use('/api/v1/auth',    authLimiter, authRoutes);
 app.use('/api/v1/pallets', palletRoutes);
 app.use('/api/v1/users',   userRoutes);
 app.use('/api/v1/logs',    logRoutes);
+app.use('/api/v1/lojas', lojaRoutes);
 
 // ---------------------------------------------------
 // TRATAMENTO DE ERROS GLOBAL

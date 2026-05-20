@@ -63,6 +63,18 @@ async function listarPallets(filtros, usuarioRequisitante) {
         params.push(data_fim);
     }
 
+    // Filtro por setor (FRIOS ou SECOS)
+    if (filtros.setor) {
+        conditions.push('p.setor = ?');
+        params.push(filtros.setor);
+    }
+
+    // Filtro por usuário (para relatório pessoal)
+    if (filtros.usuario_id) {
+        conditions.push('p.criado_por = ?');
+        params.push(filtros.usuario_id);
+    }
+
     // Busca geral: procura em loja, carga e placa ao mesmo tempo
     if (busca) {
         conditions.push(`(
@@ -193,17 +205,20 @@ async function criarPallet(dados, usuarioId, ipAddress) {
     // Insere o pallet no banco
     const result = await query(
         `INSERT INTO pallets
-            (loja_numero, box_numero, carga_numero, quantidade,
-             data_registro, placa_caminhao, sobra_status, criado_por)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            (loja_id, loja_numero, box_numero, carga_numero,
+            quantidade, data_registro, placa_caminhao,
+            sobra_status, setor, criado_por)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-            loja_numero,
-            box_numero,
-            carga_numero,
-            quantidade,
-            data_registro,
-            placa_caminhao.toUpperCase(), // placa sempre em maiúsculo
-            sobra_status ? 1 : 0,
+            dados.loja_id || null,
+            dados.loja_numero,
+            dados.box_numero,
+            dados.carga_numero,
+            dados.quantidade,
+            dados.data_registro,
+            dados.placa_caminhao.toUpperCase(),
+            dados.sobra_status ? 1 : 0,
+            dados.setor || 'SECOS',
             usuarioId,
         ]
     );

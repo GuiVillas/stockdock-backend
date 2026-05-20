@@ -133,9 +133,9 @@ async function criarUsuario(dados, adminId, ipAddress) {
 
     // 3. Insere no banco
     const result = await query(
-        `INSERT INTO users (nome, email, senha_hash, cargo)
-         VALUES (?, ?, ?, ?)`,
-        [nome, email.toLowerCase(), senhaHash, cargo]
+        `INSERT INTO users (nome, email, senha_hash, cargo, setor)
+        VALUES (?, ?, ?, ?, ?)`,
+        [nome, email.toLowerCase(), senhaHash, cargo, dados.setor || null]
     );
 
     const novoUsuario = await buscarUsuarioPorId(result.insertId);
@@ -213,6 +213,10 @@ async function editarUsuario(id, dados, adminId, ipAddress) {
     if (dados.ativo !== undefined) {
         campos.push('ativo = ?');
         params.push(dados.ativo ? 1 : 0);
+    }
+    if (dados.setor !== undefined) {
+        campos.push('setor = ?');
+        params.push(dados.setor || null);
     }
 
     params.push(id);

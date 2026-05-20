@@ -75,6 +75,17 @@ const createPalletSchema = Joi.object({
         .default(false)
         .label('Sobra de pallets'),
 
+    setor: Joi.string()
+    .valid('FRIOS', 'SECOS')
+    .required()
+    .label('Setor'),
+
+    loja_id: Joi.number()
+        .integer()
+        .positive()
+        .required()
+        .label('Loja'),
+
 }).messages(messages);
 
 // ---------------------------------------------------
