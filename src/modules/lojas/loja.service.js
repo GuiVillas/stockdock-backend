@@ -1,12 +1,10 @@
-const { query }          = require('../../config/database');
-const { AppError }       = require('../../middleware/error.middleware');
-const { registrarLog }   = require('../auth/auth.service');
+const { query }        = require('../../config/database');
+const { AppError }     = require('../../middleware/error.middleware');
+const { registrarLog } = require('../auth/auth.service');
+const logger           = require('../../utils/logger');
 
-// ---------------------------------------------------
-// LISTAR todas as lojas ativas
-// ---------------------------------------------------
 async function listarLojas(apenasAtivas = true) {
-    const where = apenasAtivas ? 'WHERE ativo = 1' : '';
+    const where = apenasAtivas ? 'WHERE l.ativo = 1' : '';
     const lojas = await query(
         `SELECT l.id, l.nome, l.numero, l.ativo,
                 l.criado_em, u.nome AS criado_por_nome
@@ -18,9 +16,23 @@ async function listarLojas(apenasAtivas = true) {
     return lojas;
 }
 
-// ---------------------------------------------------
-// CRIAR loja
-// ---------------------------------------------------
+async function buscarLojaPorId(id) {
+    const rows = await query(
+        `SELECT l.id, l.nome, l.numero, l.ativo,
+                l.criado_em, u.nome AS criado_por_nome
+         FROM lojas l
+         INNER JOIN users u ON u.id = l.criado_por
+         WHERE l.id = ? LIMIT 1`,
+        [id]
+    );
+    if (!rows[0]) {
+        throw new AppError(
+            `Loja ID ${id} não encontrada.`, 404, 'LOJA_NOT_FOUND'
+        );
+    }
+    return rows[0];
+}
+
 async function criarLoja(dados, adminId, ipAddress) {
     const { nome, numero } = dados;
 
@@ -43,18 +55,16 @@ async function criarLoja(dados, adminId, ipAddress) {
 
     await registrarLog({
         usuarioId:   adminId,
-        acao:        'CRIAR_USUARIO', // reutilizamos para loja
+        acao:        'CRIAR_USUARIO',
         descricao:   `Loja criada: ${numero} — ${nome}`,
         dadosDepois: loja,
         ipAddress,
     });
 
+    logger.info(`🏪 Loja criada: ${numero} | Admin: ${adminId}`);
     return loja;
 }
 
-// ---------------------------------------------------
-// EDITAR loja
-// ---------------------------------------------------
 async function editarLoja(id, dados, adminId, ipAddress) {
     const lojaAntes = await buscarLojaPorId(id);
 
@@ -66,38 +76,23 @@ async function editarLoja(id, dados, adminId, ipAddress) {
     if (dados.ativo  !== undefined) { campos.push('ativo = ?');  params.push(dados.ativo ? 1 : 0); }
 
     params.push(id);
-    await query(`UPDATE lojas SET ${campos.join(', ')} WHERE id = ?`, params);
+    await query(
+        `UPDATE lojas SET ${campos.join(', ')} WHERE id = ?`, params
+    );
 
     const lojaDepois = await buscarLojaPorId(id);
 
     await registrarLog({
         usuarioId:   adminId,
         acao:        'EDITAR_USUARIO',
-        descricao:   `Loja editada: ${lojaDepois.numero}`,
+        descricao:   `Loja editada: ID ${id}`,
         dadosAntes:  lojaAntes,
         dadosDepois: lojaDepois,
         ipAddress,
     });
 
+    logger.info(`✏️ Loja editada: ID ${id} | Admin: ${adminId}`);
     return lojaDepois;
 }
 
-// ---------------------------------------------------
-// BUSCAR por ID
-// ---------------------------------------------------
-async function buscarLojaPorId(id) {
-    const rows = await query(
-        `SELECT l.id, l.nome, l.numero, l.ativo, l.criado_em,
-                u.nome AS criado_por_nome
-         FROM lojas l
-         INNER JOIN users u ON u.id = l.criado_por
-         WHERE l.id = ? LIMIT 1`,
-        [id]
-    );
-    if (!rows[0]) {
-        throw new AppError(`Loja ID ${id} não encontrada.`, 404, 'LOJA_NOT_FOUND');
-    }
-    return rows[0];
-}
-
-module.exports = { listarLojas, criarLoja, editarLoja, buscarLojaPorId };
+module.exports = { listarLojas, buscarLojaPorId, criarLoja, editarLoja };

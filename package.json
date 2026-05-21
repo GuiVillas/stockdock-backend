@@ -4,11 +4,11 @@
   "description": "StockDock - API de controle de pallets para logística",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "db:migrate": "node src/config/migrate.js",
+    "start":         "node server.js",
+    "dev":           "nodemon server.js",
+    "db:migrate":    "node src/config/migrate.js",
     "db:migrate:v2": "node src/config/migrate_v2.js",
-    "db:seed": "node src/config/seed.js"
+    "db:seed":       "node src/config/seed.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
